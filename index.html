@@ -1,0 +1,167 @@
+
+-<!DOCTYPE html>
+<HTML lang="en">
+<head>
+<title>Finnkino Moive Schedule</title>
+<meta charset="utf-8">
+
+<!--------------------------------------CSS styling code goes here ---------------------------->
+<style>
+.header {
+  background-color: #f77225;
+  padding: 30px 40px;
+  color: white;
+  text-align: center;
+ 
+}
+.body {
+  background-color: grey;
+  padding: 30px 40px;
+  color: Black;
+  text-align: left;
+}
+
+</style>
+</head>
+<!--------------------------------------Regular HTML code goes here ---------------------------->
+
+
+
+<body>
+<div class="header">
+<h1>FinnKino Movie Schedule</h1>
+<h2> Welcome </h2>
+</div>
+<hr/>
+<p>
+
+<div class="body">
+<h3><strong>Click Info and then select a Theatre to see Location, Timings and Moives</strong></h3>
+<button onclick="FinnKinoXML()">Info </button>
+</p>
+
+<div id="ddListData">
+
+</div>
+
+<br/>
+<div id="tableData">
+
+    <table>
+       
+    </table>
+
+
+</div>
+
+<p><br>
+</p>
+<hr/>
+</div>
+
+
+<!------------------Scripting starts here ------------------------------------------->
+
+<script>
+            
+            // Following function is taken from the course exercise sessions and is being utilized here twice. 
+            
+            
+            // i)  -------- Function FinnKinoXML() is used --------------- to get the XML data with AJAx and it
+            // loads the Theatre ID and names which we retreive in a Table dynamically 
+            
+            
+           
+                                function FinnKinoXML() {
+                                        var xmlhttp = new XMLHttpRequest();
+                                        xmlhttp.open("GET", "https://www.finnkino.fi/xml/Schedule/", true);
+                                        xmlhttp.send();
+                                        xmlhttp.onreadystatechange = function() {
+                                            // If the loading takes time 
+                                            if(xmlhttp.readyState === 1) {
+                                                document.getElementById("myDiv").innerHTML = "Wait while Im loading...";
+                                            }
+                                            // When loading goes through successfully 
+                                            if(xmlhttp.readyState === 4 && xmlhttp.status === 200) {
+                                                // Instead of just placing the RAW XML content we need to parse it
+                                                var xmlDoc = xmlhttp.responseXML;
+                                                // in the following two different tags from XML are found to display. 
+
+                                                var theatre = xmlDoc.getElementsByTagName("Theatre");
+                                                var theatreID = xmlDoc.getElementsByTagName("TheatreID");
+                                            
+
+
+                                                // And since they are arrays, we use for loop to travel through them
+                                                // So following code gets the data from XML file with tag names as values and text for <select>
+                                                //
+                                                var txt = "<select id='mySelect' onChange='FinnKinoMovie()'>";
+                                                for(i = 0; i < theatre.length; i++) {
+                                                    txt += "<option value=" + theatreID[i].childNodes[0].nodeValue + ">" 
+                                                    + theatre[i].childNodes[0].nodeValue + "</option>"
+                                                    console.log(txt);
+                                                }
+                                                txt += "</select>";
+                                                // Finally we place the contents in a div
+                                                document.getElementById("ddListData").innerHTML = txt;
+                                            }
+                                        }
+                                    }
+
+
+
+            // i)  -------- Function FinnKinoMovie() is used --------------- to get the XML data with AJAx and it
+            // is loaded due to a call from the dynamically created <Select> tag in html body which contains 
+            // Theatre ID and Theatre names. FinnKinovMoive() checks the xml data against the user selected 
+            // Theatre and returns the Schedules and Images of the movies being played at that theathre.  
+
+                                        function FinnKinoMovie() {
+                                        var xmlhttp = new XMLHttpRequest();
+                                        xmlhttp.open("GET", "https://www.finnkino.fi/xml/Schedule/", true);
+                                        xmlhttp.send();
+                                        xmlhttp.onreadystatechange = function() {
+                                            // If the loading takes time 
+                                            if(xmlhttp.readyState === 1) {
+                                                document.getElementById("myDiv").innerHTML = "Wait while Im loading...";
+                                            }
+                                            // In case the loading goes through successfully 
+                                            if(xmlhttp.readyState === 4 && xmlhttp.status === 200) {
+                                                // Instead of just placing the RAW XML content we need to parse it
+                                             
+                                                var xmlDoc = xmlhttp.responseXML;
+                                                // in the following three different tags are found to display. 
+
+                                                var theatre = xmlDoc.getElementsByTagName("Theatre");     // Theatre Name
+                                                var theatreID=xmlDoc.getElementsByTagName("TheatreID");     
+                        var showTime = xmlDoc.getElementsByTagName("dttmShowStart");                // Moive start time 
+                        var movie = xmlDoc.getElementsByTagName("EventSmallImagePortrait");         // retrieving image URLs 
+                       
+
+
+                        // And since they are arrays, we use for loop to travel through them and then the 
+                        // results are displayed in a table. So below is the dynamically created table code
+                        //
+                        var txt = "<table>";
+                        for(i = 0; i < theatre.length; i++) {
+
+                        if (document.getElementById("mySelect").value===theatreID[i].childNodes[0].nodeValue)        // if the user selected theatreID matches with the data in XML file. 
+                        {
+
+                            txt += "<tr><td>" +  " <strong>Date and Time : </strong> " +showTime[i].childNodes[0].nodeValue  + "</td>"+ 
+                                    
+                                "<td><img src=' " + movie[i].childNodes[0].nodeValue + "' /></td></tr><br/>";
+                            console.log(txt);
+                        }
+                        txt += "</table>";
+                        // Finally we place the contents in a div
+                        document.getElementById("tableData").innerHTML = txt;
+                                            }
+                                        
+                                        }
+                                    }
+                                }
+
+            
+</script>
+</body>
+</html>
